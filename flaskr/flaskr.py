@@ -28,5 +28,17 @@ def init_db():
 			db.cursor().executescript(f.read())
 		db.commit()
 
+# set up a function that will run before every request
+@app.before_request
+def before_request():
+	g.db = connect_db()
+
+# set up a standard teardown request
+@app.teardown_request
+def teardown_request(exception):
+	db = getattr(g, 'db', None)
+	if db is not None:
+		db.close()
+
 if __name__ == "__main__":
 	app.run()
