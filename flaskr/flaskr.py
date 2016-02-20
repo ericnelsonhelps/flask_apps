@@ -43,15 +43,9 @@ def teardown_request(exception):
 # set up the function to get the entries
 @app.route('/')
 def show_entries():
-	cursor = g.db.execute('
-		select
-			title
-			, text
-		from entries
-
-		order by id desc')
+	cursor = g.db.execute('select title, text from entries order by id desc')
 	# get all of the records
-	entries = [dict(title = row[0], text = row[1]) for row in cur.fetchall()]
+	entries = [dict(title = row[0], text = row[1]) for row in cursor.fetchall()]
 	# render the template
 	return render_template('show_entries.html', entries = entries)
 
@@ -60,11 +54,8 @@ def show_entries():
 def add_entry():
 	if not session.get('logged_in'):
 		abort(401)
-	g.db.execute('insert into entries
-					(title
-					, text)
-				values
-					(?, ?)', [request.form['title'], request.form['text']])
+	g.db.execute('insert into entries (title, text) values (?, ?)'
+				, [request.form['title'], request.form['text']])
 	g.db.commit()
 	flash('New entry was successfully posted')
 
